@@ -567,19 +567,19 @@ const AuditVisualization = () => {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-green-500 rounded"></div>
-                  <span>Verified - Terdokumentasi</span>
+                  <span className="text-gray-800 font-medium">Verified - Terdokumentasi</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-                  <span>Partial - Perlu Konfirmasi</span>
+                  <span className="text-gray-800 font-medium">Partial - Perlu Konfirmasi</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                  <span>Risk - Validitas Diragukan</span>
+                  <span className="text-gray-800 font-medium">Risk - Validitas Diragukan</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 bg-red-500 rounded"></div>
-                  <span>Critical - Investigasi Prioritas</span>
+                  <span className="text-gray-800 font-medium">Critical - Investigasi Prioritas</span>
                 </div>
               </div>
             </div>
