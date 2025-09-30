@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, FileText, TrendingDown } from 'lucide-react';
+import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, FileText, TrendingDown, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 const AuditVisualization = () => {
   const [activeTab, setActiveTab] = useState('flow');
@@ -201,6 +202,55 @@ const AuditVisualization = () => {
     }).format(num);
   };
 
+  const exportToExcel = () => {
+    // Prepare data for export
+    const exportData = auditData.map((row, index) => ({
+      'No': index + 1,
+      'Kategori': row.kategori,
+      'Jumlah (Rp)': row.jumlah,
+      'Keterangan': row.keterangan,
+      'No. Bukti': row.noBukti,
+      'Tanggal': row.tanggal,
+      'Status': row.status.toUpperCase()
+    }));
+
+    // Add summary row
+    exportData.push({
+      'No': '',
+      'Kategori': 'TOTAL PENGELUARAN',
+      'Jumlah (Rp)': getTotalDana(),
+      'Keterangan': '',
+      'No. Bukti': '',
+      'Tanggal': '',
+      'Status': ''
+    });
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths
+    ws['!cols'] = [
+      { wch: 5 },  // No
+      { wch: 30 }, // Kategori
+      { wch: 15 }, // Jumlah
+      { wch: 30 }, // Keterangan
+      { wch: 15 }, // No. Bukti
+      { wch: 12 }, // Tanggal
+      { wch: 10 }  // Status
+    ];
+
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Audit Data');
+
+    // Generate filename with timestamp
+    const timestamp = new Date().toISOString().slice(0, 10);
+    const filename = `Audit_PT_CBA_${timestamp}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(wb, filename);
+  };
+
   return (
     <div className="w-full max-w-7xl mx-auto p-6 bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
@@ -260,12 +310,21 @@ const AuditVisualization = () => {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-gray-800">Tabel Audit Dana Lengkap</h2>
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            >
-              {showAddForm ? 'Batal' : '+ Tambah Data'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={exportToExcel}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export Excel
+              </button>
+              <button
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                {showAddForm ? 'Batal' : '+ Tambah Data'}
+              </button>
+            </div>
           </div>
 
           {/* Summary Cards */}
