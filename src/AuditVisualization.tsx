@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, AlertCircle, CheckCircle, FileText, TrendingDown, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const AuditVisualization = () => {
   const [activeTab, setActiveTab] = useState('flow');
   const [expandedSections, setExpandedSections] = useState({});
-  const [auditData, setAuditData] = useState([
+
+  // Default data
+  const defaultAuditData = [
     { id: 1, kategori: 'Dana masuk investor', jumlah: 3000000000, keterangan: 'Rekening koran', noBukti: 'RK-001-2024', tanggal: '2024-01-15', status: 'verified' },
     { id: 2, kategori: 'Beli material pasir', jumlah: 450000000, keterangan: 'Invoice PT Maju Jaya', noBukti: 'INV-MJ-2024-001', tanggal: '2024-02-10', status: 'verified' },
     { id: 3, kategori: 'Beli material semen', jumlah: 350000000, keterangan: 'Invoice PT Semen Sejahtera', noBukti: 'INV-SS-2024-005', tanggal: '2024-02-15', status: 'verified' },
@@ -15,7 +17,18 @@ const AuditVisualization = () => {
     { id: 7, kategori: 'Gaji karyawan', jumlah: 150000000, keterangan: 'Payroll 3 bulan', noBukti: 'PAY-Q1-2024', tanggal: '2024-01-31', status: 'verified' },
     { id: 8, kategori: 'Biaya operasional', jumlah: 100000000, keterangan: 'Transport, konsumsi, dll', noBukti: 'OP-Q1-2024', tanggal: '2024-03-31', status: 'partial' },
     { id: 9, kategori: 'Sisa kas di bank', jumlah: 100000000, keterangan: 'Saldo rekening', noBukti: 'RK-002-2024', tanggal: '2024-04-01', status: 'verified' }
-  ]);
+  ];
+
+  // Load data from localStorage or use default
+  const [auditData, setAuditData] = useState(() => {
+    const savedData = localStorage.getItem('auditData');
+    return savedData ? JSON.parse(savedData) : defaultAuditData;
+  });
+
+  // Save to localStorage whenever auditData changes
+  useEffect(() => {
+    localStorage.setItem('auditData', JSON.stringify(auditData));
+  }, [auditData]);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [newRow, setNewRow] = useState({ kategori: '', jumlah: '', keterangan: '', noBukti: '', tanggal: '', status: 'verified' });
@@ -249,6 +262,13 @@ const AuditVisualization = () => {
 
     // Save file
     XLSX.writeFile(wb, filename);
+  };
+
+  const resetData = () => {
+    if (window.confirm('Reset semua data ke default? Semua perubahan akan hilang!')) {
+      setAuditData(defaultAuditData);
+      localStorage.setItem('auditData', JSON.stringify(defaultAuditData));
+    }
   };
 
   return (
@@ -565,13 +585,24 @@ const AuditVisualization = () => {
           </div>
 
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-            <h3 className="font-bold text-lg mb-2 text-blue-800">📝 Cara Penggunaan</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Klik <strong>Edit</strong> untuk mengubah data transaksi</li>
-              <li>• Klik <strong>Hapus</strong> untuk menghapus data (akan ada konfirmasi)</li>
-              <li>• Klik <strong>+ Tambah Data</strong> untuk menambah transaksi baru</li>
-              <li>• Summary cards di atas menampilkan total dana masuk, keluar, sisa, dan selisih</li>
-            </ul>
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-bold text-lg mb-2 text-blue-800">📝 Cara Penggunaan</h3>
+                <ul className="text-sm text-blue-700 space-y-1">
+                  <li>• Klik <strong>Edit</strong> untuk mengubah data transaksi</li>
+                  <li>• Klik <strong>Hapus</strong> untuk menghapus data (akan ada konfirmasi)</li>
+                  <li>• Klik <strong>+ Tambah Data</strong> untuk menambah transaksi baru</li>
+                  <li>• Klik <strong>Export Excel</strong> untuk download data ke Excel</li>
+                  <li>• <strong>Data otomatis tersimpan</strong> di browser (tidak hilang saat refresh)</li>
+                </ul>
+              </div>
+              <button
+                onClick={resetData}
+                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium"
+              >
+                Reset Data
+              </button>
+            </div>
           </div>
         </div>
       )}
